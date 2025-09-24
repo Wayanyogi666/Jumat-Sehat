@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ceklis & Rekap Bekal Sehat</title>
+    <link rel="icon" href="https://lh3.googleusercontent.com/d/19TNRds6ofL8omolE0436xCM_kjSw7MwN" type="image/x-icon">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f8ff; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box; 
+        }
+        
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background-color: #ffffff; 
+            padding: 25px 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-height: 95vh;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        .header-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 15px; background-color: #f0f2f5; }
+        .container { background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; margin: 0 auto; max-width: 600px; }
+        h1, h2 { color: #333; text-align: center; }
+	}
+
+        .header-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+        h1 { margin-bottom: 5px; }
+        p.subtitle { text-align: center; margin-top: 0; color: #666; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
+        .input-group input[type="date"] {
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; 
+        }
+        button { background-color: #28a745; color: white; width: 100%; padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        button.secondary { background-color: #007bff; }
+        button.tertiary { background-color: #6c757d; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; }
+        th { background-color: #007bff; color: white; }
+        .student-row td:first-child, .rekap-siswa-row td:first-child { text-align: left; font-weight: bold; }
+        .hidden { display: none; }
+        .button-group { display: flex; gap: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="https://lh3.googleusercontent.com/d/1s6k8X_7RdGseH26wZ_WlAjZyQL_BIsxo" alt="Logo Sekolah" class="header-logo">
+    <div id="inputContainer">
+        <h1>📝 Ceklis Bekal Sehat</h1>
+        <p class="subtitle">Kelas 6 - Program Jumat Sehat</p>
+        <div class="input-group">
+            <label for="tanggal">Pilih Tanggal</label>
+            <input type="date" id="tanggal">
+        </div>
+        <table id="tabelSiswa">
+            <thead>
+                <tr>
+                    <th>Nama Siswa</th>
+                    <th>Kotak Makan</th>
+                    <th>Botol Minum</th>
+                    <th>Karbohidrat</th>
+                    <th>Protein</th>
+                    <th>Vitamin/Mineral/Serat</th>
+                </tr>
+            </thead>
+            <tbody id="daftarSiswa"></tbody>
+        </table>
+        <div class="button-group">
+            <button class="secondary" onclick="simpanDataHarian()">Simpan Data Tanggal Ini</button>
+            <button onclick="tampilkanRekap()">Lihat Rekap Total</button>
+        </div>
+    </div>
+
+    <div id="rekapContainer" class="hidden">
+        <h1>📊 Rekap Total Per Siswa</h1>
+        <p class="subtitle">Jumlah total centang untuk setiap siswa.</p>
+        <table id="tabelRekapSiswa">
+            <thead>
+                <tr>
+                    <th>Nama Siswa</th>
+                    <th>Kotak Makan</th>
+                    <th>Botol Minum</th>
+                    <th>Karbohidrat</th>
+                    <th>Protein</th>
+                    <th>Vitamin/Mineral/Serat</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button class="tertiary" onclick="kembaliKeInput()">Kembali ke Halaman Input</button>
+    </div>
+</div>
+
+<script>
+    // --- [ EDIT DAFTAR NAMA SISWA DI SINI ] ---
+    const namaSiswaDb = [
+        "A.A. Sayu Ratih Saniswari", "Alea Nara Oktavia", "Alexsha Cielo Alvaro Nugroho",
+        "Anak Agung Gede Oka Arya Mahendra", "Ayu Putri Purnama Sari", "Desak Putu Ratih Isnadewi",
+        "Epiphanias Djo Njoera", "Gede Ega Saputra", "I Gede Kenta Satria Putra",
+        "I Kadek Agus Tiyo Satria", "I Kadek Artha Wiguna", "I Kadek Indra Pradnyana",
+        "I Kadek Satya Dharma Putra", "I Komang Budi Artana", "I Made Arjun Naraswarya",
+        "I Putu Arya Suka Adiana", "I Putu Galang Darma Prasetya", "I Putu Gede Sujana Putra",
+        "I Putu Kenzie Kanaya Radithya", "I Putu Surya Merta Narendra", "Kadek Angela Putri Adisty",
+        "Ketut Pasek Widiarta", "Komang Devananda Prasatya Ardaretha", "Koming Rediasih",
+        "Luh Anjanie Wulantari", "Ni Kadek Dwi Antari Maharani", "Ni Kadek Evalina Pramini Yasa",
+        "Ni Kadek Millan Avara Tisrani", "Ni Komang Anindita Triananda Prameswari", "Ni Komang Tania Valeria Putri",
+        "Ni Made Kirana Maheswari", "Ni Putu Indri Priyanka Dewi", "Ni Putu Reina Putri Aprilia",
+        "Ni Wayan Putri Sri Jayantika", "Putu Aditya Danan Jaya", "Putu Ramastya Dananjaya",
+        "Putu Werdi Saputra", "Steven"
+    ];
+    // ------------------------------------------
+
+    const STORAGE_KEY = 'dataBekalSehatKelas6';
+    let semuaData = {};
+
+    window.onload = function() {
+        muatSiswaKeTabel();
+        muatDataDariStorage();
+        document.getElementById('tanggal').valueAsDate = new Date();
+        isiCeklisSesuaiTanggal();
+        document.getElementById('tanggal').addEventListener('change', isiCeklisSesuaiTanggal);
+    };
+
+    function muatSiswaKeTabel() {
+        const tbody = document.getElementById('daftarSiswa');
+        tbody.innerHTML = '';
+        namaSiswaDb.sort().forEach(nama => {
+            tbody.innerHTML += `
+                <tr class="student-row">
+                    <td>${nama}</td>
+                    <td><input type="checkbox" data-nama="${nama}" data-jenis="makan"></td>
+                    <td><input type="checkbox" data-nama="${nama}" data-jenis="minum"></td>
+                    <td><input type="checkbox" data-nama="${nama}" data-jenis="karbo"></td>
+                    <td><input type="checkbox" data-nama="${nama}" data-jenis="protein"></td>
+                    <td><input type="checkbox" data-nama="${nama}" data-jenis="serat"></td>
+                </tr>
+            `;
+        });
+    }
+
+    function muatDataDariStorage() {
+        const dataTersimpan = localStorage.getItem(STORAGE_KEY);
+        if (dataTersimpan) {
+            semuaData = JSON.parse(dataTersimpan);
+        }
+    }
+
+    function isiCeklisSesuaiTanggal() {
+        const tanggalPilihan = document.getElementById('tanggal').value;
+        const dataTanggalIni = semuaData[tanggalPilihan] || {};
+        
+        document.querySelectorAll('#daftarSiswa input[type="checkbox"]').forEach(cekbox => {
+            const nama = cekbox.dataset.nama;
+            const jenis = cekbox.dataset.jenis;
+            cekbox.checked = (dataTanggalIni[nama] && dataTanggalIni[nama][jenis]) || false;
+        });
+    }
+
+    function simpanDataHarian() {
+        const tanggal = document.getElementById('tanggal').value;
+        if (!tanggal) {
+            alert("Silakan pilih tanggal terlebih dahulu!");
+            return;
+        }
+
+        semuaData[tanggal] = {};
+        document.querySelectorAll('#daftarSiswa .student-row').forEach(row => {
+            const nama = row.cells[0].innerText;
+            semuaData[tanggal][nama] = {
+                makan: row.querySelector('[data-jenis="makan"]').checked,
+                minum: row.querySelector('[data-jenis="minum"]').checked,
+                karbo: row.querySelector('[data-jenis="karbo"]').checked,
+                protein: row.querySelector('[data-jenis="protein"]').checked,
+                serat: row.querySelector('[data-jenis="serat"]').checked
+            };
+        });
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(semuaData));
+        alert(`Data untuk tanggal ${tanggal.split('-').reverse().join('-')} berhasil disimpan!`);
+    }
+
+    function tampilkanRekap() {
+        document.getElementById('inputContainer').classList.add('hidden');
+        document.getElementById('rekapContainer').classList.remove('hidden');
+        
+        const rekapSiswaBody = document.getElementById('tabelRekapSiswa').getElementsByTagName('tbody')[0];
+        rekapSiswaBody.innerHTML = '';
+        const totalPerSiswa = {};
+
+        // Inisialisasi object total
+        namaSiswaDb.forEach(nama => {
+            totalPerSiswa[nama] = { makan: 0, minum: 0, karbo: 0, protein: 0, serat: 0 };
+        });
+
+        // Hitung total dari semua data
+        Object.values(semuaData).forEach(dataPerTanggal => {
+            Object.entries(dataPerTanggal).forEach(([nama, ceklis]) => {
+                if(totalPerSiswa[nama]) {
+                    if(ceklis.makan) totalPerSiswa[nama].makan++;
+                    if(ceklis.minum) totalPerSiswa[nama].minum++;
+                    if(ceklis.karbo) totalPerSiswa[nama].karbo++;
+                    if(ceklis.protein) totalPerSiswa[nama].protein++;
+                    if(ceklis.serat) totalPerSiswa[nama].serat++;
+                }
+            });
+        });
+
+        // Tampilkan hasil perhitungan ke tabel rekap siswa
+        Object.keys(totalPerSiswa).sort().forEach(nama => {
+            const total = totalPerSiswa[nama];
+            const baris = rekapSiswaBody.insertRow();
+            baris.className = 'rekap-siswa-row';
+            baris.innerHTML = `
+                <td>${nama}</td>
+                <td>${total.makan}x</td>
+                <td>${total.minum}x</td>
+                <td>${total.karbo}x</td>
+                <td>${total.protein}x</td>
+                <td>${total.serat}x</td>
+            `;
+        });
+    }
+
+    function kembaliKeInput() {
+        document.getElementById('rekapContainer').classList.add('hidden');
+        document.getElementById('inputContainer').classList.remove('hidden');
+        isiCeklisSesuaiTanggal();
+    }
+</script>
+
+</body>
+</html>
